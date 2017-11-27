@@ -1,0 +1,97 @@
+$vertical-align() {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+$before() {
+    &:before {
+        content: "";
+        width: 0;
+        height: 1px;
+        display: block;
+    }
+}
+
+$after() {
+    &:after {
+        content: "";
+        width: 0;
+        height: 1px;
+        display: block;
+    }
+}
+
+$clear() {
+    &:after {
+        content: "";
+        width: 0;
+        height: 0;
+        display: block;
+        clear: both;
+    }
+}
+
+$middle() {
+    &:after {
+        content: "";
+        width: 0;
+        height: 100%;
+        $vertical-align();
+    }
+}
+
+$border-radius(radius = 3px) {
+    border-radius: radius;
+}
+
+$transition(all = all .5s) {
+    transition: all;
+    -webkit-transition: all;
+}
+
+$transform(s) {
+    transform: s;
+    -webkit-transform: s;
+}
+
+$set-flex() {
+  display: -webkit-box !important;
+  display: -webkit-flex !important;
+  display: flex !important;
+}
+
+$flex(i = 1) {
+    -webkit-box-flex: i;
+    -webkit-flex: i;
+    flex: i;
+}
+
+$flex-v() {
+    -webkit-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+}
+
+$inline-block() {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+}
+
+$size(w = 0, h = 0) {
+    width: w;
+    height: h;
+}
+
+$mask()
+  z-index: 9998
+  position: fixed
+  left: 0
+  top: 0
+  width: 100%
+  height: 100%
+  background-color: rgba(0, 0, 0, .5)
+  transition: opacity .3s ease
+  
