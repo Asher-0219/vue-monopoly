@@ -5,17 +5,12 @@
 ## 2017/11/27
 ## Build Setup
 
-``` bash
-# install dependencies
+# 安装依赖
 npm install
 
-# serve with hot reload at localhost:8080
+# 开启项目  localhost:8080
 npm run dev
 
-# build for production with minification
+# 打包
 npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-```
 
