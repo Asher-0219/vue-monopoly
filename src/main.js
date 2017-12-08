@@ -7,8 +7,7 @@ import qs from 'qs'
 import xys from './common/js/config'
 
 Vue.config.productionTip = false
-axios.defaults.baseURL = 'https://wtf-api.xys.ren/1/267/interface' // 正式
-// axios.defaults.baseURL = 'https://api.xys.ren/interface/html.php' // 活动正式服地址
+// axios.defaults.baseURL = 'https://api.xys.ren/interface' // 活动正式服地址
 // axios.defaults.baseURL = 'http://120.27.194.197/1/206/interface' // 测试
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
 axios.defaults.withCredentials = true

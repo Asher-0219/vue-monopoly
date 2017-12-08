@@ -4,9 +4,9 @@
       <i class="fa fa-angle-left" @click="back"></i>
       <span class="title">{{title}}</span>
     </nav>
-    <div class="containter">
+    <div class="containter" :style="bg">
       <div class="lead" :style="pos[seat]">
-        <img src="../static/img/lead.png" alt="">
+        <img :src="info.avatar" alt="">
       </div>
       <!-- 背包按钮 -->
       <div class="backpack-btn" @click="backpack=true">
@@ -16,8 +16,8 @@
       <div class="cover" v-if="backpack">
         <div class="backpack-content">
           <div class="backpack-top">
-            <div class="coupon">
-              <img src="../static/img/coupon1.png" alt=""><span>x3</span>
+            <div class="coupon" v-for="(item, index) in myList">
+              <img :src="'../static/img/coupon'+(item.ind+1)+'.png'" alt=""><span>x{{item.num}}</span>
             </div>
           </div>
           <div class="backpack-btn1" @click="backpack=false">
@@ -30,7 +30,7 @@
       </div>
       <!-- 掷骰子按钮 -->
       <div class="dice-btn" @click="dice">
-        <span>2次</span>
+        <span>{{info.todayTimes}}次</span>
       </div>
       <!-- 触发事件 -->
       <!-- 摇骰子 -->
@@ -44,11 +44,8 @@
           <div class="lottery-content" @click="lottery">
             <div class="lottery-list">
               <div class="lottery-scroll">
-                <div class="lottery-item" v-for="(item, index) in 5">
-                  <img src="../static/img/free.png" alt="">
-                </div>
-                <div class="lottery-item" v-for="(item, index) in 5">
-                  <img src="../static/img/free.png" alt="">
+                <div class="lottery-item" v-for="(item, index) in 9">
+                  <img :src="'../static/img/coupon'+(index+1)+'.png'" alt="">
                 </div>
               </div>
             </div>
@@ -68,17 +65,20 @@
           </div>
           <div class="answer-content">
             <div class="answer-text">
-              <p>在中国神话传说中,</p>
-              <p>女娲的形象是人首什么动物身？</p>
+              <p>{{answer.title}}</p>
             </div>
             <div class="answer-radios">
-              <form action="">
-                <label for="r1"><div><div v-if="answerRadio===1"></div></div><span>蛇</span></label>
-                <label for="r2"><div><div v-if="answerRadio===2"></div></div><span>狐狸</span></label>
-                <label for="r3"><div><div v-if="answerRadio===3"></div></div><span>猫</span></label>
-                <input @click="answer(1)" :disabled="disabled" ref="radio1" type="radio" name="answer" id="r1">
-                <input @click="answer(2)" :disabled="disabled" ref="radio2" type="radio" name="answer" id="r2">
-                <input @click="answer(3)" :disabled="disabled" ref="radio3" type="radio" name="answer" id="r3">
+              <div class="labels">
+                <label for="r1"><div><div v-if="answerRadio===1"></div></div><span>{{answer.otherData[0]}}</span></label>
+                <label for="r2"><div><div v-if="answerRadio===2"></div></div><span>{{answer.otherData[1]}}</span></label>
+                <label for="r3"><div><div v-if="answerRadio===3"></div></div><span>{{answer.otherData[2]}}</span></label>
+                <label for="r4"><div><div v-if="answerRadio===4"></div></div><span>{{answer.otherData[3]}}</span></label>
+              </div>
+              <form action="">              
+                <input @click="answerClick(1)" :disabled="disabled" ref="radio1" type="radio" name="answer" id="r1">
+                <input @click="answerClick(2)" :disabled="disabled" ref="radio2" type="radio" name="answer" id="r2">
+                <input @click="answerClick(3)" :disabled="disabled" ref="radio3" type="radio" name="answer" id="r3">
+                <input @click="answerClick(4)" :disabled="disabled" ref="radio4" type="radio" name="answer" id="r4">
               </form>
             </div>
             <div class="answer-result" v-if="answerResult">
@@ -105,7 +105,7 @@
             <div class="mora2">
               <img v-if="moraTab" :class="'icon'+moraTab" class="icon" :src="'../static/img/'+(moraTab)*11+'.png'" alt="">
               <div v-if="moraResult" class="mora-result">
-                <img v-if="moraResultFlag" class="mora-result" src="../static/img/mora-win.png" alt="">
+                <img v-if="moraResultFlag===1" class="mora-result" src="../static/img/mora-win.png" alt="">
                 <img v-else class="mora-result" src="../static/img/mora-loser.png" alt="">
               </div>
             </div>
@@ -120,6 +120,29 @@
             <img src="../static/img/close.png" alt="">
           </div>
         </div>
+      </div>
+      <!-- 飓风回到原点 -->
+      <div class="cover" v-if="wind" @click="closeWind">
+        <div class="wind">
+          <div class="wind-text">
+            <img src="../static/img/wind2.png" alt="">
+          </div>
+        </div>
+      </div>
+      <div class="cover" v-if="couponActive" @click="closeCoupon">
+        <div class="coupons">
+          <img v-if="couponId===108" src="../static/img/coupon8.png" alt="">
+          <img v-if="couponId===109" src="../static/img/coupon9.png" alt="">
+          <img v-if="couponId===110" src="../static/img/coupon2.png" alt="">
+          <img v-if="couponFree" src="../static/img/coupon7.png" alt="">
+        </div>
+      </div>
+      <div class="point" @click="point=true">
+        <img src="../static/img/point.png" alt="">
+      </div>
+      <div v-if="point" class="point-content">
+        <div @click.stop="point=false" class="point-close"><img src="../static/img/x.png" alt=""></div>
+        <div>获取骰子的途径：<br>商城下单并在线付款订单（已付款）<br>可获得一次摇骰子的机会<br>每日自动刷新2次摇骰子的机会<br>（就算剩一个，第二天还是两个)</div>
       </div>
     </div>
   </div>
@@ -150,14 +173,26 @@ export default {
       lotteryWin: false, // 是否中奖
       answerActive: false, // 答题
       answerRadio: null, // 答题选项
+      answer: {title: '', otherData: [], otherId: 0}, // 答题题目
       disabled: false, // 单选框是否禁用
       answerResult: false, // 答题结果显示
-      answerResultFlg: false, // 答题结果对错
+      answerResultFlg: null, // 答题结果对错
       moraActive: false, // 猜拳
       moraResult: false, // 猜拳结果显示
-      moraResultFlag: false, // 猜拳结果
+      moraResultFlag: null, // 猜拳结果
       moraTab: null, // 猜拳选择
-      moraAi: null // 系统猜拳
+      moraAi: null, // 系统猜拳
+      info: {}, // 用户信息
+      diceType: null, // 出发事件
+      wind: false, // 飓风
+      lotteryFlg: false, // 能否抽奖
+      page: 1, // 背包页数
+      myList: [], // 我的背包
+      couponActive: false, // 抽到优惠卷
+      couponId: null, // 抽到优惠卷ID
+      couponFree: null, // 抽到包邮卷
+      bg: {backgroundImage: 'url(' + require('../static/img/bg.png') + ')'},
+      point: false
     }
   },
   name: 'app',
@@ -169,24 +204,76 @@ export default {
         window.open('http://xys/xys_force_back')
       }
     },
+    closeWind () {
+      this.wind = false
+      this.seat = 0
+    },
+    closeCoupon () {
+      this.couponActive = false
+    },
+    getInfo () {
+      // 获取个人信息
+      this.$http.post('/html.php?input=' + this.$xys.input, {
+        action: 'monopoly_step',
+        type: 1
+      }).then(res => {
+        let data = res.data
+        if (parseInt(data.status) === 1) {
+          this.info = data.data
+          this.seat = data.data.nowStep - 1
+          this.canDice = true
+        } else {
+          this.canDice = false
+        }
+      })
+    },
     dice () {
       // 掷骰子
       if (!this.canDice) return
-      this.canDice = false
-      this.diceActive = true
-      this.diceResult = false
-      this.diceGif = true
-      this.diceNum = Math.ceil(Math.random() * 6)
-      this.index = 1
-      setTimeout(() => {
-        this.diceGif = false
-        this.diceResult = true
-        this.canDice = true
-        setTimeout(() => {
-          this.move()
-          this.diceActive = false
-        }, 1000)
-      }, 2000)
+
+      this.$http.post('/html.php?input=' + this.$xys.input, {
+        action: 'monopoly_step',
+        type: 0
+      }).then(res => {
+        let data = res.data
+        if (parseInt(data.status) === 1) {
+          this.initGame()
+          this.canDice = false
+          this.diceActive = true
+          this.diceResult = false
+          this.diceGif = true
+          this.info.todayTimes--
+          this.diceNum = data.data.step
+          this.index = 1
+          this.diceType = data.data.action
+
+          // 答题
+          if (data.data.title) {
+            this.answer.title = data.data.title
+          }
+          if (data.data.otherData) {
+            for (const key in data.data.otherData) {
+              if (data.data.otherData.hasOwnProperty(key)) {
+                this.answer.otherData.push(data.data.otherData[key])
+              }
+            }
+          }
+          if (data.data.otherId) {
+            this.answer.otherId = data.data.otherId
+            this.couponId = data.data.otherId
+          }
+          setTimeout(() => {
+            this.diceGif = false
+            this.diceResult = true
+            setTimeout(() => {
+              this.move()
+              this.diceActive = false
+            }, 1000)
+          }, 2000)
+        } else {
+          Toast('次数已用完')
+        }
+      })
     },
     move () {
       // 人物移动
@@ -195,36 +282,100 @@ export default {
         this.index++
         if (this.index > this.diceNum) {
           clearInterval(time)
+          setTimeout(() => {
+            this.canDice = true
+            switch (parseInt(this.diceType)) {
+              case 1:
+                this.lotteryActive = true
+                break
+              case 2:
+                this.moraActive = true
+                break
+              case 3:
+                this.answerActive = true
+                break
+              case 4:
+                this.wind = true
+                this.info.todayTimes++
+                break
+              case 5:
+                this.couponActive = true
+                this.couponFree = true
+                break
+              case 6:
+                this.couponActive = true
+                break
+              default:
+                break
+            }
+          }, 1000)
         }
       }, 1000)
     },
     lottery () {
       // 抽奖
-      var flag = false
-      var TextNum2
-      if (!flag) {
-        flag = true
-        reset()
-        letGo()
+      var that = this
+      var TextNum2 = 0
+      if (this.lotteryFlg) return
+      this.lotteryFlg = true
+      reset()
+      letGo()
+      setTimeout(() => {
+        this.resultActive = true
+        if (this.lotteryWin) {
+          this.resultText = '恭喜你!<br/>奖品已经放入背包'
+        } else {
+          this.resultText = '很遗憾，<br/>再接再厉吧～'
+        }
         setTimeout(() => {
-          flag = false
-          this.resultActive = true
-          if (this.lotteryWin) {
-            this.resultText = '恭喜你!<br/>奖品已经放入背包'
-          } else {
-            this.resultText = '很遗憾，<br/>再接再厉吧～'
-          }
-          setTimeout(() => {
-            this.resultActive = false
-          }, 2000)
-        }, 3000)
-      }
+          this.resultActive = false
+        }, 2000)
+      }, 3000)
       function letGo () {
         // 转动抽奖
-        TextNum2 = parseInt(Math.random() * $('.lottery-item').length)
-        var num2 = -1.32 * TextNum2 + 0.4 + 'rem'
-        $('.lottery-scroll').animate({'top': '-6rem'}, 1000, 'linear', function () {
-          $(this).css('top', '-0.75rem').animate({'top': num2}, 1800, 'linear')
+        that.$http.post('/html.php?input=' + that.$xys.input, {
+          action: 'monopoly_lottery'
+        }).then(res => {
+          let data = res.data
+          if (parseInt(data.status) === 1) {
+            that.lotteryWin = true
+            switch (parseInt(data.data)) {
+              case 107:
+                TextNum2 = 7
+                break
+              case 108:
+                TextNum2 = 9
+                break
+              case 109:
+                TextNum2 = 8
+                break
+              case 110:
+                TextNum2 = 2
+                break
+              case 111:
+                TextNum2 = 6
+                break
+              case 112:
+                TextNum2 = 5
+                break
+              case 113:
+                TextNum2 = 4
+                break
+              case 114:
+                TextNum2 = 3
+                break
+              case 1:
+                TextNum2 = 1
+                that.lotteryWin = false
+                break
+              default:
+                break
+            }
+            var num2 = -1.32 * (TextNum2 - 1) + 0.4 + 'rem'
+            $('.lottery-scroll').animate({'top': '-6rem'}, 1000, 'linear', function () {
+              $(this).css('top', '-0.75rem').animate({'top': num2}, 1800, 'linear')
+            })
+          }
         })
       }
       function reset () {
@@ -232,21 +383,120 @@ export default {
         $('.lottery-scroll').css({'top': '-0.75rem'})
       }
     },
-    answer (index) {
+    answerClick (index) {
       // 答题
       if (index === this.answerRadio) return
       this.answerRadio = index
       this.disabled = true
-      this.answerResult = true
+      var answerRe = ''
+      switch (index) {
+        case 1:
+          answerRe = 'A'
+          break
+        case 2:
+          answerRe = 'B'
+          break
+        case 3:
+          answerRe = 'C'
+          break
+        case 4:
+          answerRe = 'D'
+          break
+        default:
+          break
+      }
+      this.$http.post('/html.php?input=' + this.$xys.input, {
+        action: 'monopoly_answer',
+        answerId: this.answer.otherId,
+        answerRe: answerRe
+      }).then(res => {
+        let data = res.data
+        this.answerResult = true
+        if (parseInt(data.status) === 1) {
+          this.answerResultFlg = true
+          this.answerActive = false
+          this.lotteryActive = true
+        } else {
+          this.answerResultFlg = false
+        }
+      })
     },
     chooseMora (index) {
       // 猜拳
       if (!this.moraTab) {
         this.moraTab = index
-        setTimeout(() => {
-          this.moraAi = Math.ceil(Math.random() * 3)
-        }, 2000)
+        this.$http.post('/html.php?input=' + this.$xys.input, {
+          action: 'monopoly_morra',
+          type: index
+        }).then(res => {
+          let data = res.data
+          if (parseInt(data.status) === 1) {
+            setTimeout(() => {
+              this.moraAi = data.data.sysType
+              this.moraResult = true
+              this.moraResultFlag = data.data.iswin
+              if (parseInt(data.data.iswin) === 1) {
+                this.info.todayTimes++
+                this.lotteryFlg = false
+              }
+            }, 2000)
+          }
+        })
       }
+    },
+    initGame () {
+      this.answerRadio = null
+      this.moraTab = null
+      this.moraResult = null
+      this.answerResult = null
+      this.moraAi = null
+      this.disabled = false
+      this.couponFree = null
+      this.couponId = null
+      this.lotteryFlg = false
+      this.answer = {title: '', otherData: [], otherId: 0}
+    },
+    getMylist () {
+      // 获取背包信息
+      this.$http.post('/html.php?input=' + this.$xys.input, {
+        action: 'monopoly_mylist',
+        page: this.page
+      }).then(res => {
+        let data = res.data
+        if (parseInt(data.status) === 1) {
+          data.data.forEach((v, i) => {
+            switch (parseInt(v.tid)) {
+              case 107:
+                v.ind = 7
+                break
+              case 108:
+                v.ind = 9
+                break
+              case 109:
+                v.ind = 8
+                break
+              case 110:
+                v.ind = 2
+                break
+              case 111:
+                v.ind = 6
+                break
+              case 112:
+                v.ind = 5
+                break
+              case 113:
+                v.ind = 4
+                break
+              case 114:
+                v.ind = 3
+                break
+              default:
+                break
+            }
+          })
+          this.myList = data.data
+        }
+      })
     }
   },
   created () {
@@ -262,7 +512,15 @@ export default {
     }
   },
   mounted () {
-    // console.log(this.$refs.radio1.checked)
+    this.getInfo()
+    this.getMylist()
+  },
+  watch: {
+    seat () {
+      if (this.seat > 92) {
+        this.seat = 0
+      }
+    }
   }
 }
 </script>
@@ -290,7 +548,7 @@ $center() {
     nav
       display: none
 nav {
-  z-index: 5;
+  z-index: 10;
   position: fixed;
   left: 0;
   top: 0;
@@ -322,7 +580,6 @@ nav {
 .containter
   width 15.5rem
   height 13.34rem
-  background-image url('../static/img/bg.png')
   background-repeat no-repeat
   background-size 100% 100%
   position relative
@@ -332,9 +589,18 @@ nav {
   position absolute
   transition all 1s ease
   z-index 9
+  background-image url('../static/img/lead.png')
+  background-size 100% 100%
   img
-    width 100%
-    height 100%
+    width 0.88rem
+    height 0.88rem
+    position absolute
+    left 0
+    right 0
+    top 0.13rem
+    margin auto
+    border-radius 50%
+    object-fit cover
 .dice
   width 7.5rem
   height 3.19rem
@@ -372,7 +638,7 @@ nav {
   background-size 100% 100%
   font-weight bold
   span
-    margin-left 1.6rem
+    margin-left 1.4rem
   img
     width 100%
     height 100%
@@ -381,10 +647,12 @@ nav {
   height 1.33rem
   position fixed
   right 0.28rem
-  top 0.36rem
+  top calc(0.36rem+1.33rem)
   img
     width 100%
     height 100%
+.ios .backpack-btn
+  top 0.36rem
 .backpack-content
   position absolute
   $center()
@@ -404,6 +672,7 @@ nav {
     .coupon
       margin-left 0.5rem
       margin-top 0.3rem
+      height 1.27rem
       img
         display inline-block
         width 3.3rem
@@ -471,7 +740,7 @@ nav {
   padding-top 0.66rem
   box-sizing border-box
 .answer
-  height 7rem
+  height 8rem
   position absolute
   $center()
   display flex
@@ -479,7 +748,7 @@ nav {
   align-items center
   .answer-content
     width 4.75rem
-    height 3.76rem
+    height 4rem
     margin-bottom 0.54rem
     background-image url('../static/img/ans.png')
     background-size 100% 100%
@@ -490,7 +759,7 @@ nav {
       color #303030
       font-size 0.28rem
       font-weight bold
-      margin-top 1.3rem
+      margin-top 1rem
       margin-bottom 0.2rem
     .answer-result
       width 1.86rem
@@ -618,4 +887,57 @@ input
   height 1.2rem
   align-self flex-end
   margin-bottom 0.8rem
+.wind
+  .wind-text
+    width 3.37rem
+    height 0.73rem
+    position absolute
+    top 2.28rem
+    left 0
+    right 0
+    margin auto
+.coupons
+  position absolute
+  top 0
+  bottom 0
+  left 0
+  right 0
+  margin auto
+  width 3.29rem
+  height 1.27rem
+  img
+    width 100%
+    height 100%
+.point
+  position fixed
+  left 1.6rem
+  bottom 0.84rem
+  width 0.37rem
+  height 0.37rem
+.point-content
+  border-radius 0.1rem
+  background-color rgb(255, 255, 255)
+  width 4.8rem
+  height 3.41rem
+  position fixed
+  top 0
+  bottom 0
+  left 0
+  right 0
+  margin auto
+  color #2e2e2e
+  font-size 0.28rem
+  text-align center
+  padding-top 0.64rem
+  box-sizing border-box
+  .point-close
+    width 0.5rem
+    height 0.5rem
+    position absolute
+    top 0.13rem
+    right 0.13rem
+    img
+      width 0.17rem
+      height 0.16rem
+      margin-left 0.27rem
 </style>

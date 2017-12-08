@@ -10,7 +10,13 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
+    proxyTable: {
+      '/html.php': {
+        target: 'http://120.27.194.197/1/206/interface',
+        // target: 'https://api.xys.ren/interface',
+        changeOrigin: true
+      }
+    },
 
     // Various Dev Server settings
     host: '0.0.0.0', // can be overwritten by process.env.HOST
